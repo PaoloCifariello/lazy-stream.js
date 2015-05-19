@@ -10,58 +10,128 @@
 
 	}
 
+	function StreamOperations(seed) {
+		this.operations = [];
+		this.seed = seed;
+
+		this.addOperation = function(operation) {
+			this.operations.push(operation);
+		};
+
+		this.getLastIndex = function() {
+			return this.operations.length - 1;
+		};
+
+		this.getNext = function() {
+			return this.operations[this.getLastIndex()].get();
+		}
+
+		this.SeedOperation = function(seed) {
+		
+			var seedElements = getElementsFromSeed(seed),
+				i = 0;
+
+			return {
+				get: function() {
+					if (i >= seedElements.length)
+						return null;
+
+					return seedElements[i++];
+				}	
+			}
+		};
+
+		this.MapOperation = function(mapFunction, index) {
+
+			var self = this;
+
+			return {
+				get: function() {
+					var value = self.operations[index - 1].get();
+
+					if (value === null)
+						return null;
+
+					return mapFunction.call(seed, value)
+				}
+			}
+		};
+
+
+
+		this.FilterOperation = function(filterFunction, index) {
+
+			var self = this;
+
+			return {
+				get: function() {
+					var value = self.operations[index - 1].get();
+
+					while (value !== null) {
+						if (filterFunction(value)) 
+							return value;
+						else
+							value = self.operations[index - 1].get();
+					}
+
+					return null
+
+				}
+			}
+		};
+	}
 
 	/* Stream object for simple variables */
 	function StreamObject(seed) {
-		var operations = [];
+		this.operations = new StreamOperations(seed);
+
+		this.operations.addOperation(this.operations.SeedOperation(seed));
 		
-		this.seedElements = getElementsFromSeed(seed);
 		this.seed = seed;
+
+
 	}
 
 	StreamObject.prototype.map = function(mapFunction) {
 
-		var newAccumulator = [];
+		var idx = this.operations.getLastIndex();
 
-		this.seedElements.forEach(function(el) {
-			newAccumulator.push(mapFunction.call(this.seed, el));
-		});
-
-		this.seedElements = newAccumulator;
-
+		this.operations.addOperation(this.operations.MapOperation(mapFunction, ++idx))
 		return this;
 	};
 
 	StreamObject.prototype.filter = function(filterFunction) {
 
-		var newAccumulator = [];
+		var idx = this.operations.getLastIndex();
 
-		this.seedElements.forEach(function(el) {
-			if (filterFunction.call(this.seed, el))
-				newAccumulator.push(el);
-		});
-
-		this.seedElements = newAccumulator;
-
+		this.operations.addOperation(this.operations.FilterOperation(filterFunction, ++idx))
 		return this;
 	};
 
-	StreamObject.prototype.iterate = function() {
+	StreamObject.prototype.iterate = function(nIterations) {
 
 
 		return this;
 	};
 
 	StreamObject.prototype.getNext = function () {
-
+		return this.operations.getNext();
 	};
 
 	StreamObject.prototype.getAll = function() {
-		return this.seedElements;
+
+		var values = [];
+
+		while (true) {
+			
+			var value = this.getNext();
+
+			if (value !== null) 
+				values.push(value);
+			else
+				return values;
+		}
 	};
-
-
-
 
 	function getElementsFromSeed(seed) {
 
