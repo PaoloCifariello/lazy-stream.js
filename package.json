@@ -1,0 +1,22 @@
+{
+  "name": "streamjs",
+  "version": "0.0.1",
+  "description": "An attempt to make a simple lazy evaluated stream API in Javascript taking inspiration from Java 8",
+  "main": "stream.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node test/test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PaoloCifariello/Stream.js.git"
+  },
+  "author": "Paolo Cifariello",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PaoloCifariello/Stream.js/issues"
+  },
+  "homepage": "https://github.com/PaoloCifariello/Stream.js#readme"
+}

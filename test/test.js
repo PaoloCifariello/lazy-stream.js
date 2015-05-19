@@ -1,4 +1,4 @@
-require('./stream.js');
+require('../stream.js');
 
 /* Array test */
 
