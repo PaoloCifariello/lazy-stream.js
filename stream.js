@@ -1,18 +1,44 @@
 (function () {
-	global.Stream = global.Stream || new StreamGlobal();
-	Object.prototype.stream = Object.prototype.stream || stream; 
+	var StreamGlobal = {
+		fromRange: function(from, to) {
+			var so = new StreamObject();
+
+			so.addSeedFromFunction(function() {
+				if (from < to) 
+					return from++;
+
+				return null;
+			});
+
+			return so;
+		},
+
+		fromFunction: function(seedFunction) {
+			var so = new StreamObject();
+
+			so.addSeedFromFunction(seedFunction)
+			
+			return so;
+
+		}
+	}
 
 	function stream() {
-		return new StreamObject(this);
+		var so = new StreamObject(this);
+		
+		so.addSeedFromCollection(this);
+		
+		return so;
 	}
 
-	function StreamGlobal() {
 
-	}
-
-	function StreamOperations(seed) {
+	function StreamOperations() {
 		this.operations = [];
-		this.seed = seed;
+		this.context;
+
+		this.setContext = function(context) {
+			this.context = context;
+		}
 
 		this.addOperation = function(operation) {
 			this.operations.push(operation);
@@ -26,18 +52,10 @@
 			return this.operations[this.getLastIndex()].get();
 		}
 
-		this.SeedOperation = function(seed) {
-		
-			var seedElements = getElementsFromSeed(seed),
-				i = 0;
-
+		this.SeedOperation = function(seedFunction) {
+			
 			return {
-				get: function() {
-					if (i >= seedElements.length)
-						return null;
-
-					return seedElements[i++];
-				}	
+				get: seedFunction	
 			}
 		};
 
@@ -52,7 +70,7 @@
 					if (value === null)
 						return null;
 
-					return mapFunction.call(seed, value)
+					return mapFunction.call(self.context || this, value)
 				}
 			}
 		};
@@ -79,18 +97,54 @@
 				}
 			}
 		};
+
+		this.TakeOperation = function(n, index) {
+
+			var self = this,
+				counter = n;
+
+			return {
+				get: function() {
+					if (counter > 0) {
+						var value = self.operations[index - 1].get();
+						
+						counter--;
+
+						return value;
+					}
+					
+					return null
+
+				}
+			}
+		};
+
+		this.FoldlOperation = function(foldlFunction, index) {
+
+			var self = this,
+				counter = n;
+
+			return {
+				get: function() {
+					if (counter > 0) {
+						var value = self.operations[index - 1].get();
+						
+						counter--;
+
+						return value;
+					}
+					
+					return null
+
+				}
+			}
+		};
 	}
 
 	/* Stream object for simple variables */
-	function StreamObject(seed) {
-		this.operations = new StreamOperations(seed);
+	function StreamObject() {}
 
-		this.operations.addOperation(this.operations.SeedOperation(seed));
-		
-		this.seed = seed;
-
-
-	}
+	/* Intermediate operations */
 
 	StreamObject.prototype.map = function(mapFunction) {
 
@@ -108,11 +162,44 @@
 		return this;
 	};
 
+
+	StreamObject.prototype.take = function(n) {
+
+		var idx = this.operations.getLastIndex();
+
+		this.operations.addOperation(this.operations.TakeOperation(n, ++idx))
+		return this;
+	};
+
 	StreamObject.prototype.iterate = function(nIterations) {
 
 
 		return this;
 	};
+
+	/** Final operations */
+
+	StreamObject.prototype.foldl = function (foldlFunction, base) {
+		
+		var nextValue = this.operations.getNext();
+
+		if (nextValue === null) 
+			return base;
+
+		return arguments.callee.call(this, foldlFunction, foldlFunction(base, nextValue));
+	};
+
+
+	StreamObject.prototype.foldr = function (foldrFunction, base) {
+		
+		var nextValue = this.operations.getNext();
+
+		if (nextValue === null) 
+			return base;
+
+		return foldrFunction(nextValue, arguments.callee.call(this, foldrFunction, base));
+	};
+
 
 	StreamObject.prototype.getNext = function () {
 		return this.operations.getNext();
@@ -131,6 +218,28 @@
 			else
 				return values;
 		}
+	};
+
+	StreamObject.prototype.addSeedFromCollection = function(seed) {
+		
+		var seedElements = getElementsFromSeed(seed),
+			i = 0;
+
+		function seedFunction() {
+			if (i >= seedElements.length)
+				return null;
+
+			return seedElements[i++];
+		};
+
+		this.addSeedFromFunction(seedFunction);
+		this.operations.setContext(seed);
+	};
+
+	StreamObject.prototype.addSeedFromFunction = function(seedFunction) {
+
+		this.operations = new StreamOperations();
+		this.operations.addOperation(this.operations.SeedOperation(seedFunction));
 	};
 
 	function getElementsFromSeed(seed) {
@@ -188,4 +297,7 @@
   	function hasProperty(obj, key) {
   		return obj != null && hasOwnProperty.call(obj, key);
 	}
+
+	global.Stream = global.Stream || StreamGlobal;
+	Object.prototype.stream = Object.prototype.stream || stream;
 })()
