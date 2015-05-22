@@ -1,4 +1,4 @@
-require('../stream.js');
+require('../index.js');
 
 /* Array test */
 console.log("Simple array")

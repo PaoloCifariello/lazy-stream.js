@@ -2,7 +2,7 @@
   "name": "lazy-streamjs",
   "version": "0.0.2",
   "description": "An attempt to make a simple lazy evaluated stream API in Javascript taking inspiration from Java 8",
-  "main": "stream.js",
+  "main": "index.js",
   "directories": {
     "test": "test"
   },
