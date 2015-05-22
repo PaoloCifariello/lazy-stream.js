@@ -60,3 +60,24 @@ res = Stream.fromFunction(fibGenerator)
 			.getAll();
 
 console.log(res);
+
+/* anyMatch */
+console.log("There exists an element less than -10 in range [-10, 100[ ?");
+
+res = Stream.fromRange(-10, 100)
+			.anyMatch(function(el) {
+				return el < -10;
+			});
+
+console.log(res);
+
+
+/* allMatch */
+console.log("Are all elements in [10,100[ less than 100?");
+
+res = Stream.fromRange(10, 100)
+			.allMatch(function(el) {
+				return el < 100;
+			});
+
+console.log(res);

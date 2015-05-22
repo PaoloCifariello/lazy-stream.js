@@ -81,6 +81,37 @@ StreamObject.prototype.getAll = function() {
 	}
 };
 
+StreamObject.prototype.anyMatch = function (anyMatchPredicate) {
+	
+	var nextValue = this.operations.getNext();
+
+	while (nextValue !== null) {
+	
+		if (anyMatchPredicate(nextValue))
+			return true;
+
+		nextValue = this.operations.getNext();
+	} 
+	
+	return false;
+};
+
+StreamObject.prototype.allMatch = function (allMatchPredicate) {
+	
+	var nextValue = this.operations.getNext();
+
+	while (nextValue !== null) {
+	
+		if (!allMatchPredicate(nextValue))
+			return false;
+
+		nextValue = this.operations.getNext();
+	}
+
+	return true;
+};
+
+
 StreamObject.prototype.addSeedFromCollection = function(seed) {
 	
 	var seedElements = util.getElementsFromSeed(seed),
