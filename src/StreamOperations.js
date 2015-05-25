@@ -86,25 +86,4 @@ StreamOperations.prototype.TakeOperation = function(n, index) {
 	}
 };
 
-StreamOperations.prototype.FoldlOperation = function(foldlFunction, index) {
-
-	var self = this,
-		counter = n;
-
-	return {
-		get: function() {
-			if (counter > 0) {
-				var value = self.operations[index - 1].get();
-				
-				counter--;
-
-				return value;
-			}
-			
-			return null
-
-		}
-	}
-};
-
 module.exports = StreamOperations;
