@@ -15,15 +15,12 @@ StreamOperations.prototype.getLastIndex = function() {
 	return this.operations.length - 1;
 };
 
-StreamOperations.prototype.getNext = function() {
-	return this.operations[this.getLastIndex()].get();
-}
+StreamOperations.prototype.next = function() {
+	return this.operations[this.getLastIndex()].next();
+};
 
-StreamOperations.prototype.SeedOperation = function(seedFunction) {
-	
-	return {
-		get: seedFunction	
-	}
+StreamOperations.prototype.SeedOperation = function(seedGenerator) {
+	return seedGenerator();
 };
 
 StreamOperations.prototype.MapOperation = function(mapFunction, index) {
@@ -31,36 +28,34 @@ StreamOperations.prototype.MapOperation = function(mapFunction, index) {
 	var self = this;
 
 	return {
-		get: function() {
-			var value = self.operations[index - 1].get();
+		next: function() {
+			var nextVal = self.operations[index - 1].next();
 
-			if (value === null)
-				return null;
+			if (nextVal.done === false) {
+				nextVal.value = mapFunction.call(self.context || this, nextVal.value);
+			}
 
-			return mapFunction.call(self.context || this, value)
+			return nextVal;
 		}
 	}
 };
-
-
 
 StreamOperations.prototype.FilterOperation = function(filterFunction, index) {
 
 	var self = this;
 
 	return {
-		get: function() {
-			var value = self.operations[index - 1].get();
+		next: function() {
+			var nextVal = self.operations[index - 1].next();
 
-			while (value !== null) {
-				if (filterFunction(value)) 
-					return value;
-				else
-					value = self.operations[index - 1].get();
+			while (nextVal.done === false) {
+				if (filterFunction(nextVal.value)) 
+					return nextVal;
+				
+				nextVal = self.operations[index - 1].next();
 			}
 
-			return null
-
+			return nextVal;
 		}
 	}
 };
@@ -71,16 +66,22 @@ StreamOperations.prototype.TakeOperation = function(n, index) {
 		counter = n;
 
 	return {
-		get: function() {
+		next: function() {
 			if (counter > 0) {
-				var value = self.operations[index - 1].get();
+				var nextVal = self.operations[index - 1].next();
 				
-				counter--;
+				if (nextVal.done === false) {
+					counter--;
+				}
 
-				return value;
+				return nextVal	;
 			}
 			
-			return null
+			return {
+				done: true,
+				value: undefined
+
+			};
 
 		}
 	}

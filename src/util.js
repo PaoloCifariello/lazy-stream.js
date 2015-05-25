@@ -18,6 +18,29 @@ function getElementsFromSeed(seed) {
     return accumulator;
 }
 
+function getSeedFunction(seed) {
+    var i, length;
+
+    if (isArrayLike(seed)) {
+        length = seed.length;
+
+        return function*() {
+            for (i = 0; i < length; i++) {
+                yield seed[i];
+            }
+        }
+    } else {
+        var keys = getObjectKeys(seed);
+        length = keys.length
+
+        return function*() {
+            for (i = 0; i < length; i++) {
+                yield seed[keys[i]];
+            }    
+        }
+    }
+}
+
 function getObjectKeys(obj) {
     
     if (!isObject(obj)) 
@@ -55,5 +78,6 @@ function isObject(obj) {
 }
 
 module.exports = {
-	getElementsFromSeed: getElementsFromSeed
+	getElementsFromSeed: getElementsFromSeed,
+    getSeedFunction: getSeedFunction
 };

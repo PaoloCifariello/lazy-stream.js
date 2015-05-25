@@ -44,53 +44,54 @@ StreamObject.prototype.foldl = function (foldlFunction, base) {
 	
 	var nextValue = this.operations.getNext();
 
-	if (nextValue === null) 
+	if (nextValue.done === true) 
 		return base;
 
-	return arguments.callee.call(this, foldlFunction, foldlFunction(base, nextValue));
+	return arguments.callee.call(this, foldlFunction, foldlFunction(base, nextValue.value));
 };
 
 
 StreamObject.prototype.foldr = function (foldrFunction, base) {
 	
-	var nextValue = this.operations.getNext();
+	var nextValue = this.operations.next();
 
-	if (nextValue === null) 
+	if (nextValue.done === true) 
 		return base;
 
-	return foldrFunction(nextValue, arguments.callee.call(this, foldrFunction, base));
+	return foldrFunction(nextValue.value, arguments.callee.call(this, foldrFunction, base));
 };
 
 
 StreamObject.prototype.getNext = function () {
-	return this.operations.getNext();
+	var nextValue = this.operations.next();
+
+	if (nextValue.done === false)
+		return nextValue.value;
 };
 
 StreamObject.prototype.getAll = function() {
 
-	var values = [];
+	var values = [],
+		nextValue = this.operations.next();
 
-	while (true) {
-		
-		var value = this.getNext();
-
-		if (value !== null) 
-			values.push(value);
-		else
-			return values;
+	while (nextValue.done === false) {
+		values.push(nextValue.value);
+		nextValue = this.operations.next();
 	}
+
+	return values;
 };
 
 StreamObject.prototype.anyMatch = function (anyMatchPredicate) {
 	
-	var nextValue = this.operations.getNext();
+	var nextValue = this.operations.next();
 
-	while (nextValue !== null) {
+	while (nextValue.done === false) {
 	
-		if (anyMatchPredicate(nextValue))
+		if (anyMatchPredicate(nextValue.value))
 			return true;
 
-		nextValue = this.operations.getNext();
+		nextValue = this.operations.next();
 	} 
 	
 	return false;
@@ -98,14 +99,14 @@ StreamObject.prototype.anyMatch = function (anyMatchPredicate) {
 
 StreamObject.prototype.allMatch = function (allMatchPredicate) {
 	
-	var nextValue = this.operations.getNext();
+	var nextValue = this.operations.next();
 
-	while (nextValue !== null) {
+	while (nextValue.done === false) {
 	
-		if (!allMatchPredicate(nextValue))
+		if (!allMatchPredicate(nextValue.value))
 			return false;
 
-		nextValue = this.operations.getNext();
+		nextValue = this.operations.next();
 	}
 
 	return true;
@@ -114,24 +115,15 @@ StreamObject.prototype.allMatch = function (allMatchPredicate) {
 
 StreamObject.prototype.addSeedFromCollection = function(seed) {
 	
-	var seedElements = util.getElementsFromSeed(seed),
-		i = 0;
-
-	function seedFunction() {
-		if (i >= seedElements.length)
-			return null;
-
-		return seedElements[i++];
-	};
-
-	this.addSeedFromFunction(seedFunction);
+	var seedGenerator = util.getSeedFunction(seed);
+	this.addSeedFromFunction(seedGenerator);
 	this.operations.setContext(seed);
 };
 
-StreamObject.prototype.addSeedFromFunction = function(seedFunction) {
+StreamObject.prototype.addSeedFromFunction = function(seedGenerator) {
 
 	this.operations = new StreamOperations();
-	this.operations.addOperation(this.operations.SeedOperation(seedFunction));
+	this.operations.addOperation(this.operations.SeedOperation(seedGenerator));
 };
 
 module.exports = StreamObject;

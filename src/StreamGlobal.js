@@ -5,20 +5,30 @@ var GlobalStream =
 	fromRange: function(from, to) {
 		var so = new StreamObject();
 
-		so.addSeedFromFunction(function() {
-			if (from < to) 
-				return from++;
+		function* seedGenerator() {
+			while (from < to){
+				yield from++;
+			}
+		}
 
-			return null;
-		});
+		so.addSeedFromFunction(seedGenerator);
 
-			return so;
+		return so;
 	},
 
 	fromFunction: function(seedFunction) {
 		var so = new StreamObject();
 
-		so.addSeedFromFunction(seedFunction)
+		function* seedGenerator (){
+			var nextValue = seedFunction();
+
+			while (typeof nextValue !== 'undefined') {
+				yield nextValue;
+				nextValue = seedFunction();
+			}
+		}
+
+		so.addSeedFromFunction(seedGenerator)
 		
 		return so;
 
