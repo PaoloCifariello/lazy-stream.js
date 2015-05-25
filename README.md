@@ -1,3 +1,4 @@
+[![npm version](https://badge.fury.io/js/lazy-streamjs.svg)](http://badge.fury.io/js/lazy-streamjs)
 # Stream.js
 An simple lazy evaluated stream API in Javascript inspired by Java 8 stream
 
