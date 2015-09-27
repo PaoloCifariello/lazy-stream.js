@@ -22,7 +22,7 @@ var GlobalStream =
 		function* seedGenerator (){
 			var nextValue = seedFunction();
 
-			while (typeof nextValue !== 'undefined') {
+			while (nextValue != undefined) {
 				yield nextValue;
 				nextValue = seedFunction();
 			}

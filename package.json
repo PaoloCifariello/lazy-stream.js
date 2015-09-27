@@ -1,6 +1,6 @@
 {
   "name": "lazy-streamjs",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "A simple lazy evaluated stream API in Javascript taking inspiration from Java 8",
   "main": "index.js",
   "directories": {
@@ -13,10 +13,16 @@
     "type": "git",
     "url": "git+https://github.com/PaoloCifariello/Stream.js.git"
   },
-  "author": "Paolo Cifariello",
+  "author": "Paolo Cifariello <paolocifa@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/PaoloCifariello/Stream.js/issues"
   },
-  "homepage": "https://github.com/PaoloCifariello/Stream.js#readme"
+  "homepage": "https://github.com/PaoloCifariello/Stream.js#readme",
+  "keywords": [
+    "lazy",
+    "stream",
+    "yield"
+  ],
+  "licence": "MIT"
 }

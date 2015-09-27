@@ -2,7 +2,9 @@ var StreamOperations = require('./StreamOperations'),
 	util = require('./util');
 
 /* Stream object for simple variables */
-function StreamObject() {}
+function StreamObject() {
+	this.end = false;
+}
 
 
 /* Intermediate operations */
@@ -65,8 +67,14 @@ StreamObject.prototype.foldr = function (foldrFunction, base) {
 StreamObject.prototype.getNext = function () {
 	var nextValue = this.operations.next();
 
+	if (this.end) {
+		return;
+	}
+
 	if (nextValue.done === false)
 		return nextValue.value;
+
+	this.close();
 };
 
 StreamObject.prototype.getAll = function() {
@@ -78,6 +86,8 @@ StreamObject.prototype.getAll = function() {
 		values.push(nextValue.value);
 		nextValue = this.operations.next();
 	}
+
+	this.close();
 
 	return values;
 };
@@ -125,5 +135,9 @@ StreamObject.prototype.addSeedFromFunction = function(seedGenerator) {
 	this.operations = new StreamOperations();
 	this.operations.addOperation(this.operations.SeedOperation(seedGenerator));
 };
+
+StreamObject.prototype.close = function() {
+	this.end = true;
+}
 
 module.exports = StreamObject;
