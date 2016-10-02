@@ -29,3 +29,5 @@ node_modules
 
 # Visual Studio Code
 .settings
+
+.DS_Store

@@ -9,15 +9,15 @@ An simple lazy evaluated stream API in Javascript inspired by Java 8 stream
 
 ### Initial operations
 
-You can use the global object `Stream` to create your stream:
-##### Stream.fromRange(from, to)
+You can use the global object `stream` to create your stream:
+##### stream.range(from, to)
 Get a new stream of numbers in the range `[from, to[`
 
-##### Stream.fromFunction(generatorFunction)
+##### stream.function(generatorFunction)
 Get a new stream from a function `generatorFunction` called everytime a new element is needed
 
-Or you can create a Stream from your collection using `stream` method:
-##### .stream()
+##### stream(data);
+Get a Stream from your collection (Array, Object or String) passing it to `stream` function:
 
 ### Intermediate operations
 Apply intermediate operations to the stream by just concatenating them:
@@ -48,22 +48,28 @@ Will get back the next element of the stream or `null` at the end
 Will get back all the elements of the stream
 
 ### Example
-```
-require('lazy-streamjs');
+```javascript
+var stream = require('lazy-streamjs');
 
 var data = [-2, -100, 2, 1, 2, 3, 4];
-
-var result = data.stream()
+var result = stream(data)
                  .map(function(x) { return x + 1; })
                  .filter(function(x) { return x > 0; })
                  .getAll();
 
 console.log(result);
 ```
-Will print `[3, 2, 3, 4, 5]`
+Will print 
+`
+3 
+2
+3
+4
+5
+`
 
-```
-require('lazy-streamjs');
+```javascript
+var stream = require('lazy-streamjs');
 
 var fibGenerator = (function() {
 	var e1 = 0,
@@ -79,8 +85,8 @@ var fibGenerator = (function() {
 
 })();
 
-res = Stream.fromFunction(fibGenerator)
+res = Stream.function(fibGenerator)
 			.take(10)
 			.getAll();
 ```
-Will print the first 10 elements of the Fibonacci Series (will not cause an infinite loop because of it's lazy evaluation)
+Will print the first 10 elements of the Fibonacci Series (will not cause an infinite loop because of it's lazy evaluated)
