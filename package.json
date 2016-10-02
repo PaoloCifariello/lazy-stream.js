@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PaoloCifariello/Stream.js.git"
+    "url": "git+https://github.com/PaoloCifariello/lazy-stream.js.git"
   },
   "author": "Paolo Cifariello <paolocifa@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/PaoloCifariello/Stream.js/issues"
+    "url": "https://github.com/PaoloCifariello/lazy-stream.js/issues"
   },
-  "homepage": "https://github.com/PaoloCifariello/Stream.js#readme",
+  "homepage": "https://github.com/PaoloCifariello/lazy-stream.js#readme",
   "keywords": [
     "lazy",
     "stream",
